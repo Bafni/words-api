@@ -1,0 +1,49 @@
+# Node.js
+node_modules/
+dist/
+.env
+.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+docker-compose.dev.yml
+*.log
+/tmp
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS-specific
+Thumbs.db
+.DS_Store
+
+# IDE-specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+.jest/
+nyc_output/
+
+# Git-specific
+*.orig
+*.rej
+
+# Miscellaneous
+*.pid
+*.seed
+*.pid.lock
