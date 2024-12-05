@@ -22,7 +22,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest .
 
       - name: Test Docker Compose
-        uses: nelonoel/docker-compose-action@v1.0.0
+        uses: cloudposse/github-action-docker-compose-test-run@main
         with:
           docker-compose-file: docker-compose.yml
           run: up -d
