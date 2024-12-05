@@ -21,6 +21,11 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest .
 
+      - name: Test Docker Compose
+        run: |
+          docker-compose up -d
+          docker-compose ps
+
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest

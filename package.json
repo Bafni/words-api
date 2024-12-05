@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=develop node dist/index.js",
+    "start": "node dist/index.js",
     "dev": "NODE_ENV=develop nodemon --exec ts-node src/index.ts",
-    "build": "tsc"
+    "build": "npx tsc"
   },
   "keywords": [],
   "author": "",
