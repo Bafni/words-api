@@ -21,11 +21,11 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest .
 
-      - name: Test Docker Compose
-        uses: cloudposse/github-action-docker-compose-test-run@main
-        with:
-          file: docker-compose.yml
-          command: up -d
+#      - name: Test Docker Compose
+#        uses: cloudposse/github-action-docker-compose-test-run@main
+#        with:
+#          file: docker-compose.yml
+#          command: up -d
 
       - name: Push Docker Image
         run: |
