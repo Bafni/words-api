@@ -24,8 +24,8 @@ jobs:
       - name: Test Docker Compose
         uses: cloudposse/github-action-docker-compose-test-run@main
         with:
-          docker-compose-file: docker-compose.yml
-          run: up -d
+          file: docker-compose.yml
+          command: up -d
 
       - name: Push Docker Image
         run: |
