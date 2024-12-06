@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/Bafni/words-api/compare/v1.0.7...v1.0.8) (2024-12-06)
+
+
+### Bug Fixes
+
+* version ([44c0c78](https://github.com/Bafni/words-api/commit/44c0c786eab4da2c9d7c0fcde99050b4b43b8288))
+
 ## [1.0.7](https://github.com/Bafni/words-api/compare/v1.0.6...v1.0.7) (2024-12-06)
 
 
