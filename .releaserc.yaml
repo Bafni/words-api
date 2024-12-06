@@ -1,16 +1,23 @@
 plugins:
-  - "@semantic-release/commit-analyzer" # Аналізує коміти
-  - "@semantic-release/release-notes-generator" # Генерує релізні нотатки
-  - "@semantic-release/changelog" # Оновлює CHANGELOG.md
-  - "@semantic-release/git" # Комітить package.json, CHANGELOG.md
-  - "@semantic-release/github" # Публікує реліз на GitHub
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - "@semantic-release/changelog"
+  - "@semantic-release/npm"
+  - "@semantic-release/git"
+  - "@semantic-release/github"
 
 git:
   assets:
-    - package.json # Файл, який буде оновлено і закомічено
-    - CHANGELOG.md # (опціонально, якщо використовуєте changelog)
-  message: "chore(release): ${nextRelease.version} [skip ci]" # Коміт для оновлення файлів
+    - package.json
+    - package-lock.json
+    - CHANGELOG.md
+  message: "chore(release): ${nextRelease.version} [skip ci]"
 
 branches:
-  - "+([0-9])?(.{+([0-9]),x}).x" # Для старих гілок
-  - master # Релізи на master
+  - master
+  - name: dev/*
+    prerelease: '${name.replace(/^dev\//g, "dev-")}'
+  - name: feature/*
+    prerelease: '${name.replace(/^feature\//g, "feature-")}'
+  - name: hotfix/*
+    prerelease: '${name.replace(/^hotfix\//g, "hotfix-")}'
