@@ -37,4 +37,4 @@ jobs:
         run: |
           git push origin master --tags  # Пушимо зміни та тег до репозиторію
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо GITHUB_TOKEN для доступу до репозиторію
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Використовуємо стандартний GITHUB_TOKEN для аутентифікації
