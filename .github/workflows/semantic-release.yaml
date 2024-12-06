@@ -34,11 +34,9 @@ jobs:
       - name: Verify integrity of installed dependencies
         run: npm audit signatures
 
-      # Додаємо крок для зміни прав доступу до скрипта
       - name: Make build script executable
         run: chmod +x ./my-build-script.sh  # Робимо скрипт виконуваним
 
-      # Плагін @semantic-release/exec для отримання версії
       - name: Set version environment variable
         id: version
         run: echo "VERSION=$(npx semantic-release --dry-run | grep 'The next release version is' | sed 's/.*is \(.*\)/\1/')" >> $GITHUB_ENV
@@ -50,5 +48,5 @@ jobs:
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо секрет для GitHub API
         run: npx semantic-release
