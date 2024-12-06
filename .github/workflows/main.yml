@@ -6,9 +6,11 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     env:
       REPOSITORY_PREFIX: 'words'
       REPOSITORY_NAME: 'production-api'
+
     steps:
       # Checkout the code
       - name: Checkout code
@@ -37,20 +39,20 @@ jobs:
       - name: Clean up old images
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}
+          REPOSITORY_NAME=${REPOSITORY_PREFIX}/${REPOSITORY_NAME}
           docker rmi -f $REPOSITORY_NAME:$BRANCH_NAME || true
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest .
+          docker build --platform linux/amd64 -t ${REPOSITORY_PREFIX}/${REPOSITORY_NAME}:latest .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest
+          docker push ${REPOSITORY_PREFIX}/${REPOSITORY_NAME}:latest
 
 #      # Build Docker Image
 #      - name: Build Docker Image
