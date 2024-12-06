@@ -38,7 +38,9 @@ jobs:
         run: chmod +x ./my-build-script.sh
 
       - name: Run the build script
-        run: ./my-build-script.sh ${nextRelease.version}
+        env:
+          VERSION: ${{ steps.release.outputs.version }}  # Передаємо версію в змінну оточення
+        run: ./my-build-script.sh $VERSION  # Використовуємо її в команді
 
       - name: Release
         env:
