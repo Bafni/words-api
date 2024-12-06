@@ -28,7 +28,8 @@ jobs:
       # Build Docker Image with docker-compose
       - name: Build Docker Image
         run: |
-          docker-compose -f docker-compose.yml build --platform linux/amd64
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
