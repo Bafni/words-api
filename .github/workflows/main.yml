@@ -1,64 +1,69 @@
 name: Build and Push Docker Image
 
 on:
-  workflow_dispatch: # Це дозволяє запускати workflow вручну
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{
+        github.ref == 'refs/heads/main' && 'prodaction' ||
+        github.ref == 'refs/heads/develop' && 'develop' ||
+        github.ref == 'refs/heads/stage' && 'staging' ||
+        'default_repository'
+        }}
     steps:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Node.js (ensure version 20+ for semantic-release)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x' # Встановлення версії Node.js 20 або вище
-
-      # Install dependencies
-      - name: Install dependencies
+      # Set up .env file with Docker Hub username and branch name
+      - name: Set up .env file
         run: |
-          npm install # Встановлення всіх необхідних залежностей
-
-      # Set up Git configuration for GitHub Actions bot
-      - name: Set up Git configuration
-        run: |
-          git config --global user.name "GitHub Actions Bot" # Налаштування користувача Git
-          git config --global user.email "actions@github.com" # Налаштування email
+          echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> .env.docker
+          echo "BRANCH_NAME=${GITHUB_REF_NAME}" >> .env.docker  
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}  # Ваше ім'я користувача Docker Hub, збережене в секретах GitHub
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}      # Ваш токен Docker Hub, збережений в секретах GitHub
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+#      # Clean up old images
+#      - name: Clean up old images
+#        run: |
+#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+#          docker rmi -f $REPOSITORY_NAME"/api:${BRANCH_NAME} || true
+
+      # Clean up old images
+      - name: Clean up old images
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+          REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/$REPOSITORY_NAME
+          docker rmi -f $REPOSITORY_NAME:$BRANCH_NAME || true
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Призначаємо ім'я гілки, замінюючи спеціальні символи
-          VERSION=$(npx semantic-release --no-ci | grep "The next release version is" | awk '{print $6}')  # Отримуємо наступну версію з semantic-release
-          if [ -z "$VERSION" ]; then
-            echo "VERSION is empty! Ensure that semantic-release has permission to push tags."
-            exit 1  # Якщо версія пуста, зупиняємо процес
-          fi
-          
-          # Створення Docker-образу
-          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION} .
-
-          # Якщо гілка master або main, додаємо тег latest
-          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
-            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION} ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:latest
-          fi
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Призначаємо ім'я гілки
-          VERSION=$(npx semantic-release --no-ci | grep "The next release version is" | awk '{print $6}')  # Отримуємо наступну версію
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION}  # Завантажуємо Docker-образ в Docker Hub
-          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
-            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:latest  # Завантажуємо образ з тегом latest для master/main
-          fi
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest
+
+#      # Build Docker Image
+#      - name: Build Docker Image
+#        run: |
+#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+#          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
+#
+#      # Push Docker Image to Docker Hub
+#      - name: Push Docker Image
+#        run: |
+#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+#          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}
