@@ -1,3 +1,11 @@
+## [1.0.7](https://github.com/Bafni/words-api/compare/v1.0.6...v1.0.7) (2024-12-06)
+
+
+### Bug Fixes
+
+* version ([3f5ba92](https://github.com/Bafni/words-api/commit/3f5ba92821ca45e775f01ea9f505508ea186394d))
+* виправлення багу ([844cba6](https://github.com/Bafni/words-api/commit/844cba6c5e0ab2ce4f689e58def803f1cabb39b9))
+
 ## [1.0.6](https://github.com/Bafni/words-api/compare/v1.0.5...v1.0.6) (2024-12-06)
 
 
