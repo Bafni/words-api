@@ -6,19 +6,24 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      REPOSITORY_PREFIX: 'words'
-      REPOSITORY_NAME: ${{
-        github.ref == 'refs/heads/main' && 'prodaction-api' ||
-        github.ref == 'refs/heads/master' && 'prodaction-api' ||
-        github.ref == 'refs/heads/develop' && 'develop-api' ||
-        github.ref == 'refs/heads/stage' && 'staging-api' ||
-        'default_repository'
-    }}
     steps:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Set the repository name based on the branch
+      - name: Set REPOSITORY_NAME based on the branch
+        id: set_repository_name
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]] || [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+            echo "REPOSITORY_NAME=production-api" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "REPOSITORY_NAME=develop-api" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF}" == "refs/heads/stage" ]]; then
+            echo "REPOSITORY_NAME=staging-api" >> $GITHUB_ENV
+          else
+            echo "REPOSITORY_NAME=default_repository" >> $GITHUB_ENV
+          fi
 
       # Set up .env file with Docker Hub username and branch name
       - name: Set up .env file
@@ -36,34 +41,21 @@ jobs:
       # Clean up old images
       - name: Clean up old images
         run: |
-          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Видаляти 'refs/heads/'
-          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Форматувати ім'я
+          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Remove 'refs/heads/'
+          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Format the branch name
           REPOSITORY_NAME=$REPOSITORY_PREFIX/$REPOSITORY_NAME
           docker rmi -f $REPOSITORY_NAME:$BRANCH_NAME || true
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Видаляти 'refs/heads/'
-          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Форматувати ім'я
+          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Remove 'refs/heads/'
+          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Format the branch name
           docker build --platform linux/amd64 -t $REPOSITORY_PREFIX/${REPOSITORY_NAME}:latest .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Видаляти 'refs/heads/'
-          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Форматувати ім'я
+          BRANCH_NAME=${GITHUB_REF_NAME#refs/heads/}  # Remove 'refs/heads/'
+          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Format the branch name
           docker push $REPOSITORY_PREFIX/${REPOSITORY_NAME}:latest
-
-
-#      # Build Docker Image
-#      - name: Build Docker Image
-#        run: |
-#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-#          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
-#
-#      # Push Docker Image to Docker Hub
-#      - name: Push Docker Image
-#        run: |
-#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-#          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}
