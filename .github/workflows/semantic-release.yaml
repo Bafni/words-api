@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо секрет для GitHub API
         run: |
           VERSION=$(npx semantic-release --no-ci)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV  # Записуємо версію у змінну оточення
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Записуємо версію у змінну оточення
 
       - name: Run the build script with the version
         env:
