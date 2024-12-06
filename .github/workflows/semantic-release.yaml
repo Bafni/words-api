@@ -1,4 +1,5 @@
 name: Release
+
 on:
   push:
     branches:
@@ -38,18 +39,8 @@ jobs:
       - name: Make build script executable
         run: chmod +x ./my-build-script.sh  # Робимо скрипт виконуваним
 
-      - name: Run semantic-release to calculate version
-        id: semantic_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо секрет для GitHub API
-        run: |
-          VERSION=$(npx semantic-release --no-ci)
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Записуємо версію у змінну оточення
-
-      - name: Run the build script with the version
-        env:
-          VERSION: ${{ env.VERSION }}  # Використовуємо передану версію
-        run: ./my-build-script.sh $VERSION  # Запускаємо скрипт
+      - name: Run the build script
+        run: ./my-build-script.sh  # Запускаємо скрипт без передачі версії
 
       - name: Release
         env:
