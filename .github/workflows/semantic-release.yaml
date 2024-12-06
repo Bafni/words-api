@@ -37,11 +37,15 @@ jobs:
       - name: Make build script executable
         run: chmod +x ./my-build-script.sh  # Робимо скрипт виконуваним
 
-      - name: Set version environment variable
-        id: version
-        run: echo "VERSION=$(npx semantic-release --dry-run | grep 'The next release version is' | sed 's/.*is \(.*\)/\1/')" >> $GITHUB_ENV
+      - name: Run semantic-release to calculate version
+        id: semantic_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо секрет для GitHub API
+        run: |
+          VERSION=$(npx semantic-release --no-ci)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV  # Записуємо версію у змінну оточення
 
-      - name: Run the build script
+      - name: Run the build script with the version
         env:
           VERSION: ${{ env.VERSION }}  # Використовуємо передану версію
         run: ./my-build-script.sh $VERSION  # Запускаємо скрипт
@@ -49,4 +53,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо секрет для GitHub API
-        run: npx semantic-release
+        run: npx semantic-release  # Створюємо реліз
