@@ -5,8 +5,6 @@ on:
     branches:
       - master
       - dev/*
-      - feature/*
-      - hotfix/*
 
 jobs:
   semantic-release:
@@ -41,15 +39,13 @@ jobs:
           semantic_version: 17
           extra_plugins: |
             @semantic-release/changelog@5
-            @semantic-release/exec@5
             @semantic-release/git@9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Do something when a new release published
+      - name: Verify files after release
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          echo ${{ steps.semantic.outputs.new_release_version }}
-          echo ${{ steps.semantic.outputs.new_release_major_version }}
-          echo ${{ steps.semantic.outputs.new_release_minor_version }}
-          echo ${{ steps.semantic.outputs.new_release_patch_version }}
+          echo "New version: ${{ steps.semantic.outputs.new_release_version }}"
+          cat package.json
+          cat CHANGELOG.md
