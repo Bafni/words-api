@@ -25,13 +25,20 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Build Docker Image with docker-compose
+      # Clean up old images
+      - name: Clean up old images
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} || true
+
+      # Build Docker Image
       - name: Build Docker Image
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
           docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/api:${GITHUB_REF_NAME}
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}
