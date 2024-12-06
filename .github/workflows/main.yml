@@ -55,6 +55,7 @@ jobs:
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')  # Форматувати ім'я
           docker push $REPOSITORY_PREFIX/${REPOSITORY_NAME}:latest
 
+
 #      # Build Docker Image
 #      - name: Build Docker Image
 #        run: |
