@@ -4,7 +4,12 @@ plugins:
   - "@semantic-release/changelog"
   - "@semantic-release/git"
   - "@semantic-release/github"
-  - "@semantic-release/npm"
+  - [
+    "@semantic-release/exec",
+    {
+      "prepareCmd": "./my-build-script.sh ${nextRelease.version}"
+    }
+  ]
 
 git:
   assets:
