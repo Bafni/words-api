@@ -1,3 +1,10 @@
+## [1.0.24](https://github.com/Bafni/words-api/compare/v1.0.23...v1.0.24) (2024-12-06)
+
+
+### Bug Fixes
+
+* new realise ([dd1ca9a](https://github.com/Bafni/words-api/commit/dd1ca9ac0fe128c3c402cb43a964c173726174f3))
+
 ## [1.0.23](https://github.com/Bafni/words-api/compare/v1.0.22...v1.0.23) (2024-12-06)
 
 
