@@ -1,7 +1,12 @@
-name: Build and Push Docker Image
+name: Build, Push Docker Image and Create Release
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+      - develop
 
 jobs:
   build-and-push:
@@ -11,11 +16,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up .env file with Docker Hub username and branch name
-      - name: Set up .env file
-        run: |
-          echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> .env.docker
-          echo "BRANCH_NAME=${GITHUB_REF_NAME}" >> .env.docker  
+      # Set up Node.js for Semantic Release
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub
@@ -27,47 +37,85 @@ jobs:
       # Clean up old images
       - name: Clean up old images
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} || true
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          VERSION=$(npx semantic-release --dry-run --no-ci | grep "The next release version is" | awk '{print $6}')
+
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            REPO_NAME="api-production"
+          elif [ "${BRANCH_NAME}" = "develop" ]; then
+            REPO_NAME="api-develop"
+          else
+            REPO_NAME="node-api"
+          fi
+
+          docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:${BRANCH_NAME}-${VERSION} || true
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:latest || true
+          fi
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          # Отримати назву гілки
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          VERSION=$(npx semantic-release --dry-run --no-ci | grep "The next release version is" | awk '{print $6}')
 
-          # Отримати версію з Git (останній тег або хеш коміту)
-          VERSION=$(git describe --tags --always --dirty)
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            REPO_NAME="api-production"
+          elif [ "${BRANCH_NAME}" = "develop" ]; then
+            REPO_NAME="api-develop"
+          else
+            REPO_NAME="node-api"
+          fi
 
-          # Створити Docker-образ з тегом: "назва-гілки:версія"
-          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION} .
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:${BRANCH_NAME}-${VERSION} .
 
-          # Також створити тег "latest" для зручності скачування останнього образу
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION} ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:latest
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:${BRANCH_NAME}-${VERSION} ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:latest
+          fi
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          # Отримати назву гілки
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          VERSION=$(npx semantic-release --dry-run --no-ci | grep "The next release version is" | awk '{print $6}')
 
-          # Отримати версію з Git (останній тег або хеш коміту)
-          VERSION=$(git describe --tags --always --dirty)
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            REPO_NAME="api-production"
+          elif [ "${BRANCH_NAME}" = "develop" ]; then
+            REPO_NAME="api-develop"
+          else
+            REPO_NAME="node-api"
+          fi
 
-          # Push образ із тегом "назва-гілки:версія"
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}-${VERSION}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:${BRANCH_NAME}-${VERSION}
 
-          # Push тег "latest"
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:latest
-#
-#      # Build Docker Image
-#      - name: Build Docker Image
-#        run: |
-#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-#          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
-#
-#      # Push Docker Image to Docker Hub
-#      - name: Push Docker Image
-#        run: |
-#          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-#          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}
+          if [ "${BRANCH_NAME}" = "master" ] || [ "${BRANCH_NAME}" = "main" ]; then
+            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${REPO_NAME}:latest
+          fi
+
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'master' || github.ref_name == 'main'
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Run Semantic Release
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # Optional if publishing to npm
+        run: npx semantic-release
