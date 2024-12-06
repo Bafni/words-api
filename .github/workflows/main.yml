@@ -15,6 +15,20 @@ jobs:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
+        
+      # Set up Node.js with the required version
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run semantic-release
+      - name: Run semantic-release
+        run: npx semantic-release
 
       # Set up .env file with Docker Hub username and branch name
       - name: Set up .env file
