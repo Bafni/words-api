@@ -2,35 +2,31 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#      - master
-#      - develop
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      # Clone repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Authorize Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      # Build Docker Image
       - name: Build Docker Image
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
 
-#      - name: Test Docker Compose
-#        uses: cloudposse/github-action-docker-compose-test-run@main
-#        with:
-#          file: docker-compose.yml
-#          command: up -d
-
+      # Push Docker Image
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME}
