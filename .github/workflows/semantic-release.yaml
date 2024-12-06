@@ -1,27 +1,27 @@
 name: Release
-
 on:
   push:
     branches:
-      - master # or main
+      - master
 
 permissions:
-  contents: read # for checkout
+  contents: read
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensure full history is fetched for semantic-release to work
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,18 +31,15 @@ jobs:
       - name: Install dependencies
         run: npm clean-install
 
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+      - name: Verify integrity of installed dependencies
         run: npm audit signatures
-
-      - name: Give execute permissions to the build script
-        run: chmod +x ./my-build-script.sh
 
       - name: Run the build script
         env:
-          VERSION: ${{ steps.release.outputs.version }}  # Передаємо версію в змінну оточення
+          VERSION: ${{ steps.semantic-release.outputs.version }}  # Передаємо версію в змінну оточення
         run: ./my-build-script.sh $VERSION  # Використовуємо її в команді
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # Ensure this token has the correct permissions
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
