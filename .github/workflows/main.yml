@@ -2,7 +2,10 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
-
+  push:
+    branches:
+      - master
+      - develop
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -19,7 +22,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/my-node-app:latest .
+          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/[^a-zA-Z0-9_-]/-/g')
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/node-api:${BRANCH_NAME} .
 
 #      - name: Test Docker Compose
 #        uses: cloudposse/github-action-docker-compose-test-run@main
