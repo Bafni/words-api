@@ -23,6 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Commit untracked changes to make Git working directory clean
+      - name: Commit untracked changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "ci: pre-version cleanup" || echo "Nothing to commit"
+
       # Update version in package.json
       - name: Bump version
         id: bump-version
