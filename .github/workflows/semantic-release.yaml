@@ -1,35 +1,51 @@
-name: Release
+name: Create Release and Update Version
+
 on:
   push:
     branches:
-      - master # or main
-
-permissions:
-  contents: read # for checkout
+      - master
 
 jobs:
   release:
-    name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Install Node.js (latest LTS version)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
+
       - name: Install dependencies
-        run: npm clean-install
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
-      - name: Release
+        run: npm install
+
+      # Update version in package.json
+      - name: Bump version
+        id: bump-version
+        run: |
+          NEW_VERSION=$(npm version patch -m "Bump version to %s [ci skip]")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      # Push updated package.json to master
+      - name: Commit and push updated package.json
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json package-lock.json
+          git commit -m "ci: bump version to ${{ env.new_version }}"
+          git push origin master
+
+      # Create GitHub release
+      - name: Create Release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx semantic-release
+        with:
+          tag_name: ${{ env.new_version }}
+          release_name: "Release ${{ env.new_version }}"
+          draft: false
+          prerelease: false
