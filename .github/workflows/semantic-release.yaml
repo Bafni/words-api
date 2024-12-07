@@ -1,59 +1,41 @@
-name: Create Release and Update Version
-
+name: Release
 on:
   push:
     branches:
-      - master
+      - master # or main
+
+permissions:
+  contents: read # for checkout
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
     steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Install Node.js (latest LTS version)
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      -
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          node-version: 'lts/*'
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
 
       - name: Install dependencies
-        run: npm install
+        run: npm clean-install
 
-      # Commit untracked changes to make Git working directory clean
-      - name: Commit untracked changes
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "ci: pre-version cleanup" || echo "Nothing to commit"
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
 
-      # Update version in package.json
-      - name: Bump version
-        id: bump-version
-        run: |
-          NEW_VERSION=$(npm version patch -m "Bump version to %s [ci skip]")
-          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
-
-      # Push updated package.json to master
-      - name: Commit and push updated package.json
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add package.json package-lock.json
-          git commit -m "ci: bump version to ${{ env.new_version }}"
-          git push origin master
-
-      # Create GitHub release
-      - name: Create Release
-        uses: actions/create-release@v1
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: ${{ env.new_version }}
-          release_name: "Release ${{ env.new_version }}"
-          draft: false
-          prerelease: false
+        run: npx semantic-release
