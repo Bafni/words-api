@@ -1,91 +1,44 @@
 #name: Release
-#"on":
+#on:
 #  push:
 #    branches:
-#      - master
-#      - next
-#      - beta
-#      - "*.x"
+#      - master # or main
+#
 #permissions:
 #  contents: read # for checkout
+#
 #jobs:
 #  release:
-#    permissions:
-#      contents: write # to be able to publish a GitHub release
-#      issues: write # to be able to comment on released issues
-#      pull-requests: write # to be able to comment on released pull requests
-#      id-token: write # to enable use of OIDC for npm provenance
-#    name: release
+#    name: Release
 #    runs-on: ubuntu-latest
+#    permissions:
+#      contents: write
+#      issues: write
+#      pull-requests: write
+#      id-token: write
 #    steps:
-#      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-#      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+#      - name: Checkout
+#        uses: actions/checkout@v4
 #        with:
-#          cache: npm
-#          node-version: lts/*
-#      - run: npm clean-install
-#      - run: corepack npm audit signatures
-#      # pinned version updated automatically by Renovate.
-#      # details at https://semantic-release.gitbook.io/semantic-release/usage/installation#global-installation
-#      - run: npx semantic-release@21.0.2
+#          fetch-depth: 0
+#
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: "lts/*"
+#
+#      - name: Install dependencies
+#        run: npm clean-install
+#
+#      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+#        run: npm audit signatures
+#
+#      - name: Get and print version
+#        run: |
+#          VERSION=$(node -p "require('./package.json').version")
+#          echo "The current version is $VERSION"
+#
+#      - name: Release
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-
-name: Release
-on:
-  push:
-    branches:
-      - master # or main
-
-permissions:
-  contents: read # for checkout
-
-jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-
-      - name: Install dependencies
-        run: npm clean-install
-
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
-
-      - name: Get and print version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "The current version is $VERSION"
-
-#      - name: Load environment variables from .env file
-#        run: |
-#          # Завантажити змінні з файлу .env
-#          export $(cat .env | xargs)
-
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx semantic-release
-
-#      - name: Commit version update
-#        run: |
-#          git config --global user.name "GitHub Actions"
-#          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-#          git add package.json CHANGELOG.md
-#          git commit -m "chore: update version after release"
-#          git push
+#        run: npx semantic-release

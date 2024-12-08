@@ -4,15 +4,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  make-release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release_version.outputs.version }}
 
     steps:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          # Налаштування для авторизації
           token: ${{ secrets.GITHUB_TOKEN }}
 
       # Set up Node.js with the latest LTS version
@@ -28,8 +29,27 @@ jobs:
       # Run semantic-release
       - name: Run semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо токен GitHub
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
+
+      # Get release version
+      - name: Get release version
+        id: release_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "The current version is $VERSION"
+          echo "::set-output name=version::$VERSION"
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs: make-release
+
+    steps:
+      # Set shared variables
+      - name: Set shared variables
+        run: |
+          echo "REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}" >> $GITHUB_ENV
+          echo "VERSION=${{ needs.make-release.outputs.version }}" >> $GITHUB_ENV
 
       # Log in to Docker Hub
       - name: Log in to Docker Hub
@@ -42,18 +62,52 @@ jobs:
       - name: Clean up old images
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}
-          docker rmi -f $REPOSITORY_NAME:$BRANCH_NAME || true
+          docker rmi -f $REPOSITORY_NAME:latest || true
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest .
+          # Build the latest tag
+          docker build --platform linux/amd64 -t $REPOSITORY_NAME:latest .
+
+          # Build the versioned tag
+          docker build --platform linux/amd64 -t $REPOSITORY_NAME:$VERSION .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}:latest
+          # Push the latest tag
+          docker push $REPOSITORY_NAME:latest
+          
+          # Push the versioned tag
+          docker push $REPOSITORY_NAME:$VERSION
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-image
+
+    steps:
+     # Login to server
+     - name: Login to server
+       run: |
+         echo "Login to server"
+
+     # Pull docker image
+     - name: Pull docker image
+       run: |
+         echo "Pull docker image"
+
+     # Docker-compose down
+     - name: Docker-compose down
+       run: |
+         echo "Docker-compose down"
+
+     # Clean old Image
+     - name: Clean old Image
+       run: |
+         echo "Docker-compose down"
+
+      # Docker-compose up -d
+     - name: Docker-compose up -d
+       run: |
+         echo "Docker-compose up -d"
