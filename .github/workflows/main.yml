@@ -45,6 +45,12 @@ jobs:
     needs: make-release
 
     steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
