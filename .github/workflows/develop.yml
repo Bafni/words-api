@@ -43,7 +43,7 @@ jobs:
       # Get the current date and time
       - name: Get current date and time
         run: |
-          DATE=$(date +"%d.%m.%Y-%H:%M:%S")
+          DATE=$(date +"%d.%m.%Y-%H-%M-%S")
           echo "Current date and time: $DATE"
           echo "DATE=$DATE" >> $GITHUB_ENV
 
