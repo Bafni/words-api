@@ -44,7 +44,7 @@ jobs:
 
   build-image:
     runs-on: ubuntu-latest
-    needs: make-release
+    needs: update-version
 
     steps:
       # Checkout the code
