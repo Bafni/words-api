@@ -45,15 +45,6 @@ jobs:
     needs: make-release
 
     steps:
-      # Set shared variables
-      - name: Set shared variables
-        run: |
-          echo "REPOSITORY_NAME=${GITHUB_REF_NAME}/${GITHUB_REF_NAME}" >> $GITHUB_ENV
-          echo "VERSION=${{ needs.make-release.outputs.version }}" >> $GITHUB_ENV
-          
-      - name: Test variable output
-        run: echo "REPO is $REPOSITORY_NAME"
-        
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -65,26 +56,26 @@ jobs:
       - name: Clean up old images
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker rmi -f $REPOSITORY_NAME:latest || true
+          docker rmi -f${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest || true
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
           echo "REPO $REPOSITORY_NAME"
           # Build the latest tag
-          docker build --platform linux/amd64 -t $REPOSITORY_NAME:latest .
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest .
 
           # Build the versioned tag
-          docker build --platform linux/amd64 -t $REPOSITORY_NAME:$VERSION .
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:${{ needs.make-release.outputs.version }} .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
           # Push the latest tag
-          docker push $REPOSITORY_NAME:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest
           
           # Push the versioned tag
-          docker push $REPOSITORY_NAME:$VERSION
+          docker push $REPOSITORY_NAME:${{ needs.make-release.outputs.version }}
 
   deploy:
     runs-on: ubuntu-latest
