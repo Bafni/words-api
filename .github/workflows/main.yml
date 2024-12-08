@@ -22,6 +22,15 @@ jobs:
         with:
           node-version: "lts/*"
 
+      # Cache node_modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       # Install dependencies
       - name: Install dependencies
         run: npm install
@@ -57,10 +66,19 @@ jobs:
         with:
           node-version: "lts/*"
 
+      # Cache node_modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       # Install dependencies
       - name: Install dependencies
         run: npm install
-          
+
       # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -72,11 +90,11 @@ jobs:
       - name: Clean up old images
         run: |
           BRANCH_NAME=$(echo "${GITHUB_REF_NAME}" | sed 's/refs\/heads\///' | sed 's/[^a-zA-Z0-9_-]/-/g')
-          docker rmi -f${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest || true
+          docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest || true
 
       - name: List all files
         run: ls -la
-  
+
       # Build Docker Image
       - name: Build Docker Image
         run: |
@@ -100,27 +118,27 @@ jobs:
     needs: build-image
 
     steps:
-     # Login to server
-     - name: Login to server
-       run: |
-         echo "Login to server"
+      # Login to server
+      - name: Login to server
+        run: |
+          echo "Login to server"
 
-     # Pull docker image
-     - name: Pull docker image
-       run: |
-         echo "Pull docker image"
+      # Pull docker image
+      - name: Pull docker image
+        run: |
+          echo "Pull docker image"
 
-     # Docker-compose down
-     - name: Docker-compose down
-       run: |
-         echo "Docker-compose down"
+      # Docker-compose down
+      - name: Docker-compose down
+        run: |
+          echo "Docker-compose down"
 
-     # Clean old Image
-     - name: Clean old Image
-       run: |
-         echo "Docker-compose down"
+      # Clean old Image
+      - name: Clean old Image
+        run: |
+          echo "Docker-compose down"
 
       # Docker-compose up -d
-     - name: Docker-compose up -d
-       run: |
-         echo "Docker-compose up -d"
+      - name: Docker-compose up -d
+        run: |
+          echo "Docker-compose up -d"

@@ -24,7 +24,7 @@ services:
       - app-network
 
   api:
-    image: ${DOCKER_HUB_USERNAME}/node-api:${BRANCH_NAME}
+    image: ${DOCKER_HUB_USERNAME}/${BRANCH_NAME}:latest
     platform: linux/amd64
     build:
       context: .
