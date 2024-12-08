@@ -6,7 +6,7 @@ on:
       - develop
 
 jobs:
-  make-release:
+  update-version:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.release_version.outputs.version }}
@@ -24,15 +24,15 @@ jobs:
         with:
           node-version: "lts/*"
 
-      # Install dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # Run semantic-release
-      - name: Run semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx semantic-release
+#      # Install dependencies
+#      - name: Install dependencies
+#        run: npm install
+#
+#      # Run semantic-release
+#      - name: Run semantic-release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#        run: npx semantic-release
 
       # Get release version
       - name: Get release version
