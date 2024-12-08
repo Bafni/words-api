@@ -10,7 +10,6 @@
       {
         "assets": ["package.json", "CHANGELOG.md"]
       }
-    ],
-    "@semantic-release/version"
+    ]
   ]
 }
