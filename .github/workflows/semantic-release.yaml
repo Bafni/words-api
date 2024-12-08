@@ -37,6 +37,11 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "The current version is $VERSION"  
+          
+      - name: Load environment variables from .env file
+        run: |
+          # Завантажити змінні з файлу .env
+          export $(cat .env | xargs)
 
       - name: Release
         env:
