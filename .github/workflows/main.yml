@@ -28,7 +28,7 @@ jobs:
       # Run semantic-release
       - name: Run semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Використовуємо токен GitHub
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Використовуємо токен GitHub
         run: npx semantic-release
 
       # Log in to Docker Hub
