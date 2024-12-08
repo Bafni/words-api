@@ -24,10 +24,10 @@ jobs:
         with:
           node-version: "lts/*"
 
-#      # Install dependencies
-#      - name: Install dependencies
-#        run: npm install
-#
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
 #      # Run semantic-release
 #      - name: Run semantic-release
 #        env:
