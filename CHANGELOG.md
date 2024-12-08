@@ -1,3 +1,15 @@
+## 1.0.49 (2024-12-08)
+
+
+### Bug Fixes
+
+* test develop e0cb725
+* test develop 86d8d41
+* test develop 52a5a5f
+* test develop 73a811f
+* test develop 6c452e7
+* test develop c6f9e62
+
 ## 1.0.48 (2024-12-08)
 
 
