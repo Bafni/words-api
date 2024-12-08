@@ -48,7 +48,7 @@ jobs:
       # Set shared variables
       - name: Set shared variables
         run: |
-          echo "REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/${REPOSITORY_NAME}" >> $GITHUB_ENV
+          echo "REPOSITORY_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.make-release.outputs.version }}" >> $GITHUB_ENV
 
       # Log in to Docker Hub
@@ -67,6 +67,7 @@ jobs:
       # Build Docker Image
       - name: Build Docker Image
         run: |
+          echo "REPO $REPOSITORY_NAME"
           # Build the latest tag
           docker build --platform linux/amd64 -t $REPOSITORY_NAME:latest .
 
