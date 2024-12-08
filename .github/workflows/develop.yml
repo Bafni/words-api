@@ -28,11 +28,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-#      # Run semantic-release
-#      - name: Run semantic-release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#        run: npx semantic-release
+      # Run semantic-release
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx semantic-release
 
       # Get release version
       - name: Get release version
