@@ -1,3 +1,20 @@
+## [1.0.27](https://github.com/Bafni/words-api/compare/v1.0.26...v1.0.27) (2024-12-08)
+
+
+### Bug Fixes
+
+* new realise ([da75b0d](https://github.com/Bafni/words-api/commit/da75b0d166a070fb122855612da209b58e778892))
+* new realise ([bef9377](https://github.com/Bafni/words-api/commit/bef9377a9f9e4f4e5fde7897b2c07124be995f95))
+* new realise ([b9dccfc](https://github.com/Bafni/words-api/commit/b9dccfc72c1e2560131963d9379e309882d37f3a))
+* new realise ([865417e](https://github.com/Bafni/words-api/commit/865417e5e346af3cdab901bca5006d8bd1fff109))
+* new realise ([40b8c1f](https://github.com/Bafni/words-api/commit/40b8c1fecc59ddbca1b1b3180859fb46bc69f8c1))
+* new realise ([3e43ae6](https://github.com/Bafni/words-api/commit/3e43ae659cf5c81637e2416d40d20d37ece45147))
+* new realise ([dd582ee](https://github.com/Bafni/words-api/commit/dd582ee5a9de55fd4d95c77e7b96337c41ab87ad))
+* new realise ([feffaa0](https://github.com/Bafni/words-api/commit/feffaa0d5bd6bfcf4a72f2724d50cf93995fc7ea))
+* new realise ([09ed120](https://github.com/Bafni/words-api/commit/09ed120f2a2512dbc6bf7cef31014b23596dccc4))
+* node version ([ad0a4ce](https://github.com/Bafni/words-api/commit/ad0a4cedaf95064b437f6c3bddc6db4a8d3b60ca))
+* node version ([30d5b43](https://github.com/Bafni/words-api/commit/30d5b43dd0c4bb3c5fa0319e91c5f6b2c9aba8d2))
+
 ## [1.0.26](https://github.com/Bafni/words-api/compare/v1.0.25...v1.0.26) (2024-12-06)
 
 
