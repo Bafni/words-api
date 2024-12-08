@@ -33,6 +33,11 @@ jobs:
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
 
+      - name: Set Git user
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
       - name: Get and print version
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -48,10 +53,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
 
-      - name: Commit version update
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json CHANGELOG.md
-          git commit -m "chore: update version after release"
-          git push
+#      - name: Commit version update
+#        run: |
+#          git config --global user.name "GitHub Actions"
+#          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+#          git add package.json CHANGELOG.md
+#          git commit -m "chore: update version after release"
+#          git push
