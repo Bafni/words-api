@@ -1,3 +1,11 @@
+## [1.0.30](https://github.com/Bafni/words-api/compare/v1.0.29...v1.0.30) (2024-12-08)
+
+
+### Bug Fixes
+
+* node version ([8fdf66d](https://github.com/Bafni/words-api/commit/8fdf66d4d28e68021264246bf903795cc5cb9c5a))
+* node version ([2893b68](https://github.com/Bafni/words-api/commit/2893b68563acb761948c2fb3cf145062af2a5232))
+
 ## [1.0.29](https://github.com/Bafni/words-api/compare/v1.0.28...v1.0.29) (2024-12-08)
 
 
