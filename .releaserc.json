@@ -1,16 +1,26 @@
 {
-  "branches": ["master", "next", "beta", "*.x"],
+  "branches": ["+([0-9])?(.{+([0-9]),x}).x", "master"],
   "plugins": [
     "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
+    ["@semantic-release/release-notes-generator", {
+      "presets": "conventionalcommits",
+      "presetConfig": {
+        "types": [
+          { "type": "feat", "section": "Futures" },
+          { "type": "fix", "section": "Fixes" },
+          { "type": "bugfix", "section": "Bug fixes" },
+          { "type": "hotfix", "section": "Hotfix" }
+        ]
+      },
+      "linkCompare": false,
+      "linkReferences": false
+    }],
     "@semantic-release/changelog",
-    "@semantic-release/npm",
-    [
-      "@semantic-release/git",
+    ["@semantic-release/npm", { "npmPublish": false }],
+    ["@semantic-release/git",
       {
-        "assets": ["package.json", "CHANGELOG.md"]
-      }
-    ],
-    "@semantic-release/github"
+        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }]
   ]
 }
