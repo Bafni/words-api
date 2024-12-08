@@ -61,7 +61,6 @@ jobs:
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          echo "REPO $REPOSITORY_NAME"
           # Build the latest tag
           docker build --platform linux/amd64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest .
 
@@ -75,7 +74,7 @@ jobs:
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:latest
           
           # Push the versioned tag
-          docker push $REPOSITORY_NAME:${{ needs.make-release.outputs.version }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${GITHUB_REF_NAME}:${{ needs.make-release.outputs.version }}
 
   deploy:
     runs-on: ubuntu-latest
